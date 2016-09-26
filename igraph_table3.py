@@ -95,7 +95,6 @@ print '#clusters with more than 1 element: ', len([i for i in comm if len(i) > 1
 g.vs["group"] = comm.membership
 
 print '\n'
-shortest = g.shortest_paths()
 
 tab = open('table_3', 'w') 
 for i in cfed.keys():
