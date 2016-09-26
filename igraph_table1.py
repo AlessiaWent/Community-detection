@@ -4,6 +4,7 @@ import time
 import pp
 from point_igr import Point
 import math
+import sys
 
 def slice(points, beg, end, cfed):
     s = time.time()
@@ -48,6 +49,7 @@ for line in sogg:
     line = line.strip().split(',')
     soggent[line[0]] = []
 sogg.close()
+
 f2 = open('rolestable_filtered', 'r')
 next(f2)
 for line in f2:
@@ -57,7 +59,7 @@ for line in f2:
 f2.close()
 
 cfed = {}
-cf = open('cftable_1small', 'r')
+cf = open(sys.argv[2], 'r')
 for line in cf:
     line = line.strip().split(' ')
     cfed[line[0]] = line[1]
@@ -65,7 +67,7 @@ cf.close()
 M = [Point(name, soggent, entci) for name in cfed.keys()]
 n = len(M)
 print n
-#g = Graph(7626691)
+
 g = Graph()
 g.add_vertices([cfed[p.name] for p in M])
 m = job_server.get_ncpus()
@@ -85,25 +87,20 @@ for job in jobs:
 g.add_edges(edges)
 g.es["weight"] = weights
 print 'PT (including copying results) =', time.time() - s
-#for i in range(len(M)):
-#    p = M[i]
-#    for j in range(i):
-#	q = M[j]
-#	if p.link(q) != None:
-#	    g.add_edge(cfed[p.name], cfed[q.name], weight = p.link(q))
+
 comm = g.community_label_propagation(weights = g.es["weight"])
 print '#clusters with more than 1 element: ', len([i for i in comm if len(i) > 1])
 g.vs["group"] = comm.membership
-#for i in comm:
-#    if len(i) > 1:
-#	print i
+
 closeness = g.closeness()
 betweenness = g.betweenness()
 print '\n'
+
 tab = open('table_1', 'w') 
 for i in cfed.keys():
     sub = g.induced_subgraph([v for v in g.vs() if v["group"] == g.vs.find(cfed[i])["group"]])
-    tab.write(i+","+cfed[i]+","+str(g.vs.find(cfed[i])["group"])+","+str(sub.degree(sub.vs.find(cfed[i])))+","+str(sub.degree(sub.vs.find(cfed[i]))/float(len(sub.vs())))+","+str(closeness[g.vs.find(cfed[i]).index])+","+str(betweenness[g.vs.find(cfed[i]).index])+"\n")
+    deg = sub.degree(sub.vs.find(cfed[i]))
+    tab.write(i+","+cfed[i]+","+str(g.vs.find(cfed[i])["group"])+","+str(deg)+","+str(deg)+","+str(closeness[g.vs.find(cfed[i]).index])+","+str(betweenness[g.vs.find(cfed[i]).index])+"\n")
 tab.close()
 print 'TT =', time.time() - t
 job_server.print_stats()
