@@ -77,8 +77,9 @@ plt.xlim(xmin=0)
 plt.savefig('24cores.png')
 plt.close()
 
-A = np.array([1000,2000,5000,10000])
-B = np.array([56,218,1351,5291])
+dat = np.loadtxt('shared_times')
+A = dat[:,0]
+B = dat[:,1]
 plt.plot(A,B,label = 'Parallel part', marker = 'o')
 plt.title('Scaling for comm. det. algorithm with multiprocessing, 24 processors (cosilt)')
 plt.xlabel('Size of dataset')
@@ -86,6 +87,18 @@ plt.ylabel('Elapsed time')
 plt.ylim(ymin =0)
 plt.xlim(xmin=0)
 plt.savefig('24cores_shared.png')
+plt.close()
+
+dat = np.loadtxt('table1_times')
+A = dat[:,0]
+B = dat[:,1]
+plt.plot(A,B,label = 'Parallel part', marker = 'o')
+plt.title('Community detection algorithm with output for table1, 24 processors (cosilt)')
+plt.xlabel('Size of dataset')
+plt.ylabel('Elapsed time')
+plt.ylim(ymin =0)
+plt.xlim(xmin=0)
+plt.savefig('24cores_table1.png')
 plt.close()
 
 C = np.array([200000,300000,500000,700000])
