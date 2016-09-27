@@ -101,6 +101,18 @@ plt.xlim(xmin=0)
 plt.savefig('24cores_table1.png')
 plt.close()
 
+dat = np.loadtxt('table3_times')
+A = dat[:,0]
+B = dat[:,1]
+plt.plot(A,B,label = 'Parallel part', marker = 'o')
+plt.title('Community detection algorithm with output for table3, 24 processors (cosilt)')
+plt.xlabel('Size of dataset')
+plt.ylabel('Elapsed time')
+plt.ylim(ymin =0)
+plt.xlim(xmin=0)
+plt.savefig('24cores_table3.png')
+plt.close()
+
 C = np.array([200000,300000,500000,700000])
 D = np.array([1684,4035,10398,20509])
 D2 = np.array([2914,6552,18193,36303])
