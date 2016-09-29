@@ -110,7 +110,7 @@ for i in range(nclu):
 	centr = sum([degmax - x for x in degs])/float((nnodes - 1)*(nnodes - 2))
     else:
 	centr = 0
-    tab.write(str(i)+','+str(nnodes)+','+str(nedges)+','+str(2*nedges/float(nnodes))+','+str(max(shortest))+','+str(centr)+'\n')
+    tab.write(str(i)+','+str(nnodes)+','+str(nedges)+','+str(2*nedges/float(nnodes))+','+str(max(max(shortest)))+','+str(centr)+'\n')
 tab.close()
 print 'TT =', time.time() - t
 job_server.print_stats()
