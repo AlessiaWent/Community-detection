@@ -59,10 +59,12 @@ for line in f2:
 f2.close()
 
 cfed = {}
+cfed_rev = {}
 cf = open(sys.argv[2], 'r')
 for line in cf:
     line = line.strip().split(' ')
     cfed[line[0]] = line[1]
+    cfed_rev[line[1]] = line[0]
 cf.close()
 M = [Point(name, soggent, entci) for name in cfed.keys()]
 n = len(M)
@@ -97,10 +99,14 @@ betweenness = g.betweenness()
 print '\n'
 
 tab = open('table_1', 'w') 
-for i in cfed.keys():
-    sub = g.induced_subgraph([v for v in g.vs() if v["group"] == g.vs.find(cfed[i])["group"]])
-    deg = sub.degree(sub.vs.find(cfed[i]))
-    tab.write(i+","+cfed[i]+","+str(g.vs.find(cfed[i])["group"])+","+str(deg)+","+str(deg)+","+str(closeness[g.vs.find(cfed[i]).index])+","+str(betweenness[g.vs.find(cfed[i]).index])+"\n")
+for e in range(max(comm.membership)):
+    sub = g.induced_subgraph([v for v in g.vs() if v["group"] == e])
+    evcent = sub.evcent()
+    prank = sub.pagerank()
+    for v in sub.vs():
+        deg = sub.degree(v)
+	i = v["name"]
+        tab.write(cfed_rev[i]+","+i+","+str(g.vs.find(i)["group"])+","+str(deg)+","+str(deg/float(sub.vcount()))+","+str(closeness[sub.vs.find(i).index])+","+str(betweenness[sub.vs.find(i).index])+i','+str(evcent[v.index])+','+str(prank[v.index])+"\n")
 tab.close()
 print 'TT =', time.time() - t
 job_server.print_stats()
