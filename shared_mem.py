@@ -8,6 +8,8 @@ import multiprocessing
 from multiprocessing.managers import SyncManager
 from functools import partial
 import sys
+#Igraph program with multiprocessing library
+#Usage: python shared_mem.py cftable nproc
 
 def SManager():
     m = SyncManager()
@@ -17,10 +19,11 @@ def SManager():
 def slice(i,a):
     points = a[0]
     dict = a[1]
+    nproc = a[2]
     n = len(points)
     s = time.time()
-    beg = int(math.sqrt(i)*n/8)
-    end = int(math.sqrt(i+1)*n/8)
+    beg = int(math.sqrt(i)*n/math.sqrt(nproc))
+    end = int(math.sqrt(i+1)*n/math.sqrt(nproc))
     result = []
     for i in range(beg, end):
         p = points[i]
@@ -35,8 +38,23 @@ def slice(i,a):
     return result
 
 
+if len(sys.argv) <2:
+    print 'please provide me input file' 
+    sys.exit()
 
+if len(sys.argv) <3:
+    print 'please provide me number of processors'
+    sys.exit()
+
+cfed = {}
+cf = open(sys.argv[1], 'r')
+for line in cf:
+    line = line.strip().split(' ')
+    cfed[line[0]] = int(line[1])
+cf.close()
 t = time.time()
+
+print "reading all needed data" 
 
 entci = {}
 f1 = open('preventivi_filtered.csv')
@@ -60,22 +78,18 @@ for line in f2:
         soggent[a].append(line[0])
 f2.close()
 
-cfed = {}
-cf = open(sys.argv[1], 'r')
-for line in cf:
-    line = line.strip().split(' ')
-    cfed[line[0]] = int(line[1])
-cf.close()
+print "start working in parallel"
 
 sm = SManager()
 
 M = sm.list([Point(name, soggent, entci) for name in cfed.keys()])
 n = len(M)
 g = Graph(7626691)
+nproc = int(sys.argv[2])
 
 s = time.time()
-pool = multiprocessing.Pool(processes = 64)
-result = pool.map(partial(slice,a = (M,cfed)),range(64))
+pool = multiprocessing.Pool(processes = nproc)
+result = pool.map(partial(slice,a = (M,cfed,nproc)),range(nproc))
 
 edges = []
 weights = []
