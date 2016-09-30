@@ -1,4 +1,5 @@
 import pp
+#module for igraph program
 
 class Point(object):
     def __init__(self, name, rolesdict, entdict):

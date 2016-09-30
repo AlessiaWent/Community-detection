@@ -4,6 +4,8 @@ import time
 import pp
 from point_igr import Point
 import math
+#Community detection algorithm
+#Usage: python label_propagation.py nproc cftable
 
 def slice(points, beg, end, cfed):
     s = time.time()
@@ -48,6 +50,7 @@ for line in sogg:
     line = line.strip().split(',')
     soggent[line[0]] = []
 sogg.close()
+
 f2 = open('rolestable_filtered', 'r')
 next(f2)
 for line in f2:
@@ -57,18 +60,21 @@ for line in f2:
 f2.close()
 
 cfed = {}
-cf = open('cftable_small', 'r')
+cf = open(sys.argv[2], 'r')
 for line in cf:
     line = line.strip().split(' ')
     cfed[line[0]] = int(line[1])
 cf.close()
+
 M = [Point(name, soggent, entci) for name in cfed.keys()]
 n = len(M)
 print n
 g = Graph(7626691)
+
 m = job_server.get_ncpus()
 s = time.time()
 jobs = [job_server.submit(slice,(M,int(math.sqrt(i)*n/math.sqrt(m)),int(math.sqrt(i+1)*n/math.sqrt(m)),cfed),(),('time','math')) for i in range(m)]
+
 edges = []
 weights = []
 i = 0
@@ -83,17 +89,10 @@ for job in jobs:
 g.add_edges(edges)
 g.es["weight"] = weights
 print 'PT (including copying results) =', time.time() - s
-#for i in range(len(M)):
-#    p = M[i]
-#    for j in range(i):
-#	q = M[j]
-#	if p.link(q) != None:
-#	    g.add_edge(cfed[p.name], cfed[q.name], weight = p.link(q))
+
+#Finding communities
 comm = g.community_label_propagation(weights = g.es["weight"])
 print '#clusters with more than 1 element: ', len([i for i in comm if len(i) > 1])
-#for i in comm:
-#    if len(i) > 1:
-#	print i
 
 print 'TT =', time.time() - t
 job_server.print_stats()

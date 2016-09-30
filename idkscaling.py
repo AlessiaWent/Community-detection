@@ -1,5 +1,6 @@
 import pp
 import time
+#module for DBSCAN program
 
 class Point(object):
     def __init__(self, name, rolesdict, entdict):
