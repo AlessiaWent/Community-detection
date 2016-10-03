@@ -8,8 +8,6 @@ import multiprocessing
 from multiprocessing.managers import SyncManager
 from functools import partial
 import sys
-#Igraph program with multiprocessing library
-#Usage: python shared_mem.py cftable nproc
 
 def SManager():
     m = SyncManager()
@@ -20,6 +18,7 @@ def slice(i,a):
     points = a[0]
     dict = a[1]
     nproc = a[2]
+    my_proc=i
     n = len(points)
     s = time.time()
     beg = int(math.sqrt(i)*n/math.sqrt(nproc))
@@ -34,7 +33,7 @@ def slice(i,a):
             if p.link(q) != None:
 		l = p.link(q)
                 result.append([b, c, l])
-    print beg, time.time() - s
+    print "process",my_proc, "from ", beg, " to",end,"for range", end-beg,"in", time.time() - s,"sec"
     return result
 
 
@@ -46,13 +45,17 @@ if len(sys.argv) <3:
     print 'please provide me number of processors'
     sys.exit()
 
-cfed = {}
+
+t_zero = time.time()
+
+sm = SManager()
+
+cfed = sm.dict()
 cf = open(sys.argv[1], 'r')
 for line in cf:
     line = line.strip().split(' ')
     cfed[line[0]] = int(line[1])
 cf.close()
-t = time.time()
 
 print "reading all needed data" 
 
@@ -78,9 +81,11 @@ for line in f2:
         soggent[a].append(line[0])
 f2.close()
 
+print " complete reading dataset"
+print 'initialization time  (including reading data ) =', time.time() - t_zero
+
 print "start working in parallel"
 
-sm = SManager()
 
 M = sm.list([Point(name, soggent, entci) for name in cfed.keys()])
 n = len(M)
@@ -90,6 +95,7 @@ nproc = int(sys.argv[2])
 s = time.time()
 pool = multiprocessing.Pool(processes = nproc)
 result = pool.map(partial(slice,a = (M,cfed,nproc)),range(nproc))
+
 
 edges = []
 weights = []
@@ -105,4 +111,4 @@ print 'PT (including copying results) =', time.time() - s
 comm = g.community_label_propagation(weights = g.es["weight"])
 print '#clusters with more than 1 element: ', len([i for i in comm if len(i) > 1])
 
-print 'TT =', time.time() - t
+print 'TT =', time.time() - t_zero
