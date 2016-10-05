@@ -1,40 +1,39 @@
 import codecs
 from igraph import *
 import time
-import pp
 from point_igr import Point
 import math
 import multiprocessing
-from multiprocessing.managers import SyncManager
+from multiprocessing import Process
+from Queue import Empty
+from multiprocessing import Queue
 from functools import partial
 import sys
 
-def SManager():
-    m = SyncManager()
-    m.start()
-    return m
+def indices(i,k):
+    j = 0
+    while i >= k:
+	i -= k
+	k -= 1
+	j += 1
+    return (i+j,j)
 
-def slice(i,a):
-    points = a[0]
-    dict = a[1]
-    nproc = a[2]
+def slice(i,j,a,que):
+    points_i = a[0]
+    points_j = a[1]
+    di = a[2]
+    nproc = a[3]
     my_proc=i
-    n = len(points)
     s = time.time()
-    beg = int(math.sqrt(i)*n/math.sqrt(nproc))
-    end = int(math.sqrt(i+1)*n/math.sqrt(nproc))
     result = []
-    for i in range(beg, end):
-        p = points[i]
-	b = dict[p.name]
-        for j in range(i):
-            q = points[j]
-	    c = dict[q.name]
-            if p.link(q) != None:
+    for p in points_i:
+	b = di[p.name]
+        for q in points_j:
+	    c = di[q.name]
+	    if p.link(q) != None and c != b:
 		l = p.link(q)
                 result.append([b, c, l])
-    print "process",my_proc, "from ", beg, " to",end,"for range", end-beg,"in", time.time() - s,"sec"
-    return result
+    que.put(result)
 
 
 if len(sys.argv) <2:
@@ -48,9 +47,7 @@ if len(sys.argv) <3:
 
 t_zero = time.time()
 
-sm = SManager()
-
-cfed = sm.dict()
+cfed = {}
 cf = open(sys.argv[1], 'r')
 for line in cf:
     line = line.strip().split(' ')
@@ -87,27 +84,52 @@ print 'initialization time  (including reading data ) =', time.time() - t_zero
 print "start working in parallel"
 
 
-M = sm.list([Point(name, soggent, entci) for name in cfed.keys()])
+M = [Point(name, soggent, entci) for name in cfed.keys()]
 n = len(M)
 g = Graph(7626691)
 nproc = int(sys.argv[2])
 
 s = time.time()
-pool = multiprocessing.Pool(processes = nproc)
-result = pool.map(partial(slice,a = (M,cfed,nproc)),range(nproc))
-
+nsquares = n/10000
+#nsquares = 10
+q = Queue()
+processes_list = []
 
 edges = []
 weights = []
-for j in result:
-    for k in j:
-        edges.append((k[0], k[1]))
+tot_proc = nsquares*(nsquares+1)/2
+
+all_results = []
+
+for proc_num in range(nsquares*(nsquares+1)/2):
+	i, j = indices(proc_num,nsquares)
+        proc = Process(target=slice, args=[i, j, (M[n/nsquares*i:n/nsquares*(i+1)],M[n/nsquares*j:n/nsquares*(j+1)], cfed, nproc),q])
+        proc.start()
+	print 'proc_num =', proc_num
+        processes_list.append(proc)
+        while len(processes_list) >= nproc:
+            time.sleep(1)
+            try:
+                while True:
+                    all_results.append(q.get(block = False))
+            except Empty:
+                pass
+            processes_list = [p for p in processes_list if p.is_alive()]
+
+while len(all_results)< tot_proc:
+    all_results.append(q.get())
+
+for r in all_results:
+    for k in r:
+	edges.append((k[0], k[1]))
         weights.append(k[2])
+
+[p.join() for p in processes_list]
+
 g.add_edges(edges)
 g.es["weight"] = weights
 
 print 'PT (including copying results) =', time.time() - s
-
 comm = g.community_label_propagation(weights = g.es["weight"])
 print '#clusters with more than 1 element: ', len([i for i in comm if len(i) > 1])
 
