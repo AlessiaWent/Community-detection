@@ -162,3 +162,63 @@ plt.ylabel("Number of nodes")
 
 plt.tight_layout()
 plt.savefig("plot_net_8.png")
+
+fig, ax = plt.subplots()
+rects1 = plt.bar(index, (37836, 2998, 924, 552, 143), bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Computation')
+
+plt.xticks(index + bar_width/2, ('2','3','[4, 10)','[10, 100)','[100, 4284]'))
+
+plt.title("Nodes per community with community detection")
+plt.xlabel("Number of nodes")
+plt.ylabel("Number of communities")
+
+plt.tight_layout()
+plt.savefig("plot_net_nnodes.png")
+
+fig, ax = plt.subplots()
+rects1 = plt.bar(index, (37836, 3232, 871, 379, 135), bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Computation')
+
+plt.xticks(index + bar_width/2, ('1','[2, 3]','[4, 100)','[100, 5000)','[5000, 8838992]'))
+
+plt.title("Edges per community with community detection")
+plt.xlabel("Number of edges")
+plt.ylabel("Number of communities")
+
+plt.tight_layout()
+plt.savefig("plot_net_nedges.png")
+
+fig, ax = plt.subplots()
+rects1 = plt.bar(index, (48, 66, 39, 43, 1), bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Computation')
+
+plt.xticks(index + bar_width/2, ('[16, 20)','[20, 30)','[30, 50)','[50, 400)','56166'))
+
+plt.title("Nodes per community with DBSCAN")
+plt.xlabel("Number of nodes")
+plt.ylabel("Number of communities")
+
+plt.tight_layout()
+plt.savefig("plot_db_nnodes.png")
+
+fig, ax = plt.subplots()
+rects1 = plt.bar(index, (61, 90, 37, 8, 1), bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Computation')
+
+plt.xticks(index + bar_width/2, ('[73, 200)','[200, 1000)','[1000, 5000)','[5000, 40000)','25844192'))
+
+plt.title("Edges per community with DBSCAN")
+plt.xlabel("Number of edges")
+plt.ylabel("Number of communities")
+
+plt.tight_layout()
+plt.savefig("plot_db_nedges.png")
