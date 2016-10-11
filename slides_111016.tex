@@ -52,7 +52,7 @@
 
 \begin{frame}
  \frametitle{Stato dei lavori}
- Completata l'analisi su un sottocampione di dati (soggetti registrati negli ultimi 6 mesi) delle communities ottenute tramite i soli link di tipo "broker"
+ Completata l'analisi su un sottocampione di dati (soggetti registrati negli ultimi 6 mesi, circa 1M nodi) delle communities ottenute tramite i soli link di tipo "broker"
   \begin{itemize}
   \item Due algoritmi di clustering, implementati in Python:
   \begin{itemize}
@@ -78,6 +78,15 @@ $$
 per cui tutti i punti da $p_1$ a $p_{n-1}$ sono core points.\\
 
 Tutti i punti non raggiungibili da nessun core point sono considerati \textit{noise}, e non apparterranno a nessun cluster/community.
+\end{frame}
+\begin{frame}
+\frametitle{DBSCAN - esempio}
+  \begin{figure}[htbp]
+\centering
+\includegraphics[height=6.0 cm,width=10 cm]{DBSCAN.png}
+
+\end{figure}
+
 \end{frame}
 
 \begin{frame}
@@ -111,6 +120,7 @@ Questa parte del programma, preliminare all'algoritmo di clustering, è stata in
 \end{frame}
 \begin{frame}
  \frametitle{Scalabilità della creazione della network per un dataset di 200K nodi (PP)}
+ Scalabilità su un nodo del cluster c3hpc
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{label_200K.png}
@@ -147,6 +157,7 @@ Size & Time \\
 \end{frame}
 \begin{frame}
  \frametitle{Scalabilità della creazione della network, 24 processori (PP)}
+ Scalabilità su un intero nodo di c3hpc, size variabile da 10K a 700K
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{24coresb.png}
@@ -218,6 +229,7 @@ Pur essendo, a parità di condizioni, leggermente meno efficiente di Parallel Py
 \end{frame}
 \begin{frame}
  \frametitle{Scalabilità per la creazione della tabella 1}
+ Scalabilità su un intero nodo di c3hpc, size variabile da 10K a 1M
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{24cores_table1.png}
@@ -227,7 +239,7 @@ Pur essendo, a parità di condizioni, leggermente meno efficiente di Parallel Py
 
 \begin{frame}
  \frametitle{Scalabilità per la creazione della tabella 4}
-
+Scalabilità su un intero nodo di c3hpc, size variabile da 10K a 1M
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{24cores_table4.png}
@@ -267,6 +279,17 @@ In generale, il tempo richiesto per la produzione delle tabelle non è trascurab
 \frame{\sectionpage}
 \begin{frame}
  \frametitle{DBSCAN e Label propagation a confronto}
+ I due algoritmi sono stati confrontati sul network provvisto dei soli link di tipo ``broker''. Due soggetti sono collegati nel network se:
+ 
+ \begin{itemize}
+\item Sono coinvolti in uno stesso preventivo (con due ruoli diversi)
+\item Hanno richiesto almeno un preventivo tramite un agente (ID CODICE INTERMEDIARIO) comune. 
+ \end{itemize}
+ \end{frame}
+
+\begin{frame}
+ \frametitle{DBSCAN e Label propagation a confronto}
+ I due algoritmi danno output sensibilmente diversi:
  \begin{center}
   \begin{tabular}{||c|c|c||}
 \hline
@@ -278,14 +301,16 @@ In generale, il tempo richiesto per la produzione delle tabelle non è trascurab
 \hline
 max size & 56116 & 4284 \\
 \hline
-min size & 73 & 2 \\
+min size & 16 & 2 \\
 \hline
 \end{tabular}
 \end{center}
+In particolare, DBSCAN (con parametro $m = 15$) non individua le communities piccole del Label propagation, che sono molto probabilmente prive di \texit{core points}.\\
+La community più grande ottenuta con DBSCAN verrebbe probabilmente splittata usando un $m$ maggiore.
 \end{frame}
 \begin{frame}
  \frametitle{Numero di nodi nelle communities - Label propagation}
- 
+ La differenza come numero di punti all'interno di cluster è quasi interamente compensata dalla presenza di communities piccole con Label propagation.
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{plot_net_nnodes.png}
@@ -293,8 +318,27 @@ min size & 73 & 2 \\
 \end{figure}
 \end{frame}
 \begin{frame}
+\frametitle{DBSCAN e Label propagation a confronto}
+Confronto sulle communities di size compresa tra 15 e 400
+\begin{center}
+  \begin{tabular}{||c|c|c||}
+\hline
+ & DBSCAN & Label propagation \\ 
+\hline
+#communities & 196 & 493 \\
+\hline
+#nodes in communities & 8044 & 37109 \\
+\hline
+max size & 350 & 396 \\
+\hline
+min size & 16 & 15 \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}
  \frametitle{Numero di nodi nelle communities - a confronto}
- 
+ Tagliando le communities sotto i 15 elementi di Label propagation, e quella più grande ottenuta con DBSCAN, i due andamenti sono molto più simili.
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{plot_nnodes.png}
@@ -303,7 +347,7 @@ min size & 73 & 2 \\
 \end{frame}
 \begin{frame}
  \frametitle{Norm degree - a confronto}
- Il norm degree è definito come il rapporto tra il degree all'interno della community e il numero dei suoi nodi.
+ Il norm degree è definito come il rapporto tra il degree (numero di connessioni) all'interno della community e il numero dei suoi nodi.
   \begin{figure}[htbp]
 \centering
 \includegraphics[height=6.0 cm,width=10 cm]{plot_ndegree.png}
@@ -312,12 +356,21 @@ min size & 73 & 2 \\
 \end{frame}
 \begin{frame}
 \frametitle{Prossimi step}
-Possibili modi di proseguire:
+Possibili modi di proseguire sull'analisi del link di tipo broker:
 \begin{itemize}
 \item Cercare di capire la relazione effettiva tra community e ruolo dei codici intermediario, ad esempio contando il numero totale di codici intermediario associati a un qualche nodo della community
 \item Fare lo stesso con i codici segmento
 \item Estrarre 100 codici intermediario, considerare i gruppi di nodi collegati a questi, e cercare di confrontarli con le communities ottenute dagli algoritmi
 \item Fare lo stesso con 20 codici segmento.
+\end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Step successivi}
+\begin{itemize}
+\item Eventuale tuning del parametro $m$ per DBSCAN, o tagli sulle size delle communities (entro 2 settimane)
+\item Run con tutti i link sul database da 1M, con tuning dei parametri sui link probabilistici (entro fine mese)
+\item Run con tutti i link sul database completo (entro metà novembre)
+\item Consegna del lavoro (a seguire)
 \end{itemize}
 \end{frame}
 \end{document}
