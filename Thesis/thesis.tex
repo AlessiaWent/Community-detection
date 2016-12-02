@@ -65,7 +65,7 @@
 \thispagestyle{empty}
 \clearpage{\pagestyle{empty}\cleardoublepage}\thispagestyle{empty}
 \chapter{Introduction}
-The work presented in this thesis  has been performed within the collaboration among MHPC and Generali Big data group. Generali proposed the overall topic: application of clustering algorithm to customer base data set in order to identify user community.  The Big data group took also care to identify  such a large dataset within the company and its subsidaries. They finally identify the  Genertel (a subsidiary company of Generali) customer-base archive as the dataset to work on.\\
+The work presented in this thesis  has been performed within the collaboration among MHPC and the Analytic Solution Center (ASC), an office which is part of Assicurazioni Generali Head Office and is responsible of advanced analytic and big data projects. Generali proposed the overall topic: modelling of the customer database as a social network and community identification.  The Analytic Solution Center took also care to identify  such a large dataset within the company and its subsidaries. They finally identify the  Genertel (a subsidiary company of Generali) customer-base archive as the dataset to work on. The data have been first anonymized by Genertel and then the anonymized dataset has been delivered for the analysis.\\
 The goal of the project is to implement on HPC resources a software able to detect the communities from the dataset identified.\\
 
 The work performed will be presented in this document as follows.\\
@@ -319,8 +319,8 @@ As soon as we were able to access the dataset, we moved everything to the Lustre
 
 In the next section we will explain in a bit more detail the analysis we performed in order to better understand how to use the dataset.
 \section{Preliminary dataset analysis}
-After a brief discussion with Generali, we concluded that our first goal was to compute the so-called \textbf{Broker} links, perform a clustering algorithm on the obtained network, and profile the communities. The idea behind the Broker link is that two people are connected whenever they have, at some point, interacted with the same representative in order to get an estimate for some insurance.\\
-The first thing we needed to understand was then how to determine when two estimates were given by the same agent, from the information contained in the dataset. In particular, one of the files defining the dataset gives information related to each estimate, including sometimes the agent code and/or the branch code.\\
+After a brief discussion with Generali, we concluded that our first goal was to compute the so-called \textbf{Broker} links, perform a clustering algorithm on the obtained network, and profile the communities. The idea behind the Broker link is that two people are connected whenever they have, at some point, interacted with the same agent in order to get an quotation for some policy.\\
+The first thing we needed to understand was then how to determine when two quotations were given by the same agent, from the information contained in the dataset. In particular, one of the files defining the dataset gives information related to each quotation, including sometimes the agent code and/or the branch code.\\
 We discussed possible ways to determine the probability that two customers were linked whenever the agent code information was missing for all the estimates asked by one of (or both) the customers. To this end we ran a few Python scripts to compute, for istance:
 \begin{itemize}
 \item how many estimates had both the agent code and the branch code information
@@ -372,7 +372,7 @@ Our first attempt of parallelization involved the \lstinline!pp! (Parallel Pytho
 \begin{figure}[H]
 \centering
 \includegraphics[height=8.415 cm,width=11.25 cm]{old.png}
-\caption{Case of 24 processors, as in one COSILT node}\label{fig:old}
+\caption{Case of 24 processors, as in one COSILT node. Each color corresponds to one thread}\label{fig:old}
 \end{figure}
 The width of the slices varies so that each thread performs the same amount of computations. Memory consumption is however not balanced: the last process (assuming processes are numbered from left to right) needs to know everything about all customers - therefore, it consumes a lot of memory - while the first one only needs to know the data concerning a small subset of the customers.\\
 At the end of the computation, one single process collects all the results and does the actual writing to the output file.\\
@@ -381,14 +381,14 @@ We performed two different kinds of measure: we first measured scalability fixin
  \begin{figure}[H]
 \centering
 \includegraphics[height=7.0 cm,width=10 cm]{label_200K.png}
-\caption{Scalability on a node of the COSILT cluster}\label{fig:200}
+\caption{Scalability on a node of the COSILT cluster, elapsed time is expressed in seconds}\label{fig:200}
 \end{figure}
 The computation scales almost perfectly with the number of process, as Figure \ref{fig:200}.\\
 
  \begin{figure}[htbp]
 \centering
 \includegraphics[height=7.0 cm,width=10 cm]{24coresb.png}
-\caption{Scalability on a full node of the COSILT cluster}\label{fig:problem}
+\caption{Scalability on a full node of the COSILT cluster, elapsed time is expressed in seconds}\label{fig:problem}
 \end{figure}
 The scalability with respect the size of the network seems to be quadratic (as it should be). However, we were not able to complete the computation for 1 million customers within the expected amount of time according to Figure \ref{fig:problem}.\\
 
@@ -405,7 +405,7 @@ Switching to a different library is not the only thing that changed in our imple
 \begin{figure}[H]\label{fig:blocks}
 \centering
 \includegraphics[height=8.415 cm,width=11.25 cm]{grid.png}
-\caption{Case of 24 processors, as in one COSILT node}
+\caption{Case of 24 processors, as in one COSILT node. Each color corresponds to one thread}
 \end{figure}
 The adjacency matrix was divided into blocks of size around $10000\times 10000$ (a bit less in some cases, depending on the remainder of the division \{size of the matrix\}/10000), and processes have to analyse the upper-triangular blocks. The number of cores is always an upper bound for the number of blocks analysed at the same time. Therefore, in the case of a COSILT node, the first 24 blocks are assigned to the 24 processes, as soon as a process completes its job it takes care of the next block that must be analysed, and so forth. After this change, processes are also balanced in memory.\\
 
@@ -414,7 +414,7 @@ The block size was chosen so that each process takes a ``reasonable'' amount of 
 \begin{figure}[H]
 \centering
 \includegraphics[height=7.0 cm,width=10 cm]{24cores_shared.png}
-\caption{Scalability on a full node of the COSILT cluster}\label{fig:shared}
+\caption{Scalability on a full node of the COSILT cluster, elapsed time is expressed in seconds}\label{fig:shared}
 \end{figure}
 As Figure \ref{fig:shared} shows, we were able to run the script for the entire network consisting of 1 million customers.\\
 
@@ -471,12 +471,12 @@ The clustering algorithm is then followed by the production of the two output fi
   \begin{figure}[H]
 \centering
 \includegraphics[height=6.125 cm,width=8.75 cm]{24cores_table1.png}
-\caption{Scalability on a full node of the COSILT cluster for the first output file with Label propagation} \label{fig:tab1}
+\caption{Scalability on a full node of the COSILT cluster for the first output file with Label propagation, elapsed time is expressed in seconds} \label{fig:tab1}
 \end{figure}
  \begin{figure}[H]
 \centering
 \includegraphics[height=6.125 cm,width=8.75 cm]{24cores_table4.png}
-\caption{Scalability on a full node of the COSILT cluster for the second output file with Label propagation} \label{fig:tab4}
+\caption{Scalability on a full node of the COSILT cluster for the second output file with Label propagation, elapsed time is expressed in seconds} \label{fig:tab4}
 \end{figure}
 Overall, we notice that the time taken by the generation and profiling of the communities is definitely not negligible with respect to the time taken by the generation of the links. However, it is less.
 Moreover, such part can trivially be split in two parts, each of which performs the same clustering algorithm independently and produces one of the two output files. This means that the overall computation can additionally benefit from this further trivial parallelization, and that the total time taken only depends on the creation of the slowest of the output tables.\\
