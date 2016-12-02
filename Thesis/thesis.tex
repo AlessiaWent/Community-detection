@@ -627,21 +627,26 @@ min size & 2 & 2 & 2\\
 \chapter{Conclusions}
 In this last chapter we briefly summarize the activities performed within this thesis, underlining the most important achievements we reached. The overall goal of the thesis described in the Introduction has been achieved. In particular, we implemented on HPC resources cluster algorithms able to process and evaluate communities on the dataset provided. The usage of HPC resources allowed us to process and analyse an amount of data several times larger than the amount of data Genertel is able to process internally.\\
 
-The main results of the thesis concern two important aspects, the HPC implementation and the Cluster analysis.
-\begin{itemize}
-\item From the HPC implementation point of view:
+The main results of the thesis concern two important aspects, the HPC implementation and the Cluster analysis.\\
+
+From the HPC implementation point of view:
 \begin{itemize}
 \item We implemented an intra-node parallelization by means of a shared memory approach
 \item We implemented an inter-node parallelization
 \item The total amount of HPC resources used is more than 77000 core-hours. This means 855 jobs submitted so far
 \item We parallelized and measured speed-up of the tools developed within the node and on a multinode infrastructure
 \end{itemize}
-\item With respect to clustering algorithms:
+Our implementation is able in principle to deal with arbitrarily large datasets for all kinds of links. However, we did not extend all the computations to the entire dataset for the following reasons:
+\begin{itemize}
+\item Genertel was more interested in analysing different kinds of links on smaller subsets (mostly 1 or 2 million customers) than analysing one single link on the whole dataset
+\item The HPC resources available to us are shared with other users, which did not allow us to complete all the jobs in a sufficiently small amount of time
+\end{itemize}
+With respect to clustering algorithms:
 \begin{itemize}
 \item We generated communities for different kinds of links 
 \item We compared two algorithms for the generation of such communities
 \end{itemize}
-\end{itemize}
+
 
 Given the limited amount of time, we were only able to analyse only some of the links, mostly deterministic ones.\\
 In order to complete the work, the following has to be done:
