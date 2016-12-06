@@ -85,13 +85,13 @@ for all $x,y$ in $D$. If $d$ also satisfies the triangle inequality, it will be 
 
 Cluster analysis is not a specific algorithm, but the general partitioning problem. In fact, there is not even a universal strict definition of what a cluster is. This leads to different cluster \textit{models}, into which numerous clustering algorithms are grouped.\\
 Amongst the main models we have, for example, \textit{Hierarchical clustering}\cite{hie}, which seeks to build a hierarchy of clusters, and is further divided into \textit{Agglomerative clustering} (bottom-up approach) and \textit{Divisive clustering} (top-down approach).\\
-Or, we have $k$\textit{-means} and $k$\textit{-medoids} methods, where clusters are defined as subsets of points which are closest to their corresponding cluster \textit{center}, and the center of the clusters are found through minimization of an objective function (sum of the square distances).\\
+Alternatively, we have $k$\textit{-means} and $k$\textit{-medoids} methods, where clusters are defined as subsets of points which are closest to their corresponding cluster \textit{center}, and the center of the clusters are found through minimization of an objective function (sum of the square distances).\\
 The main drawback of this last class of clustering algorithms is that they are not able to detect clusters with an arbitrary shape. This is however achieved by algorithms based on \textit{local density}, which is the number of points within a threshold distance $\varepsilon$, that must be given as a parameter. This means that for each point we are only interested in the points which
 are closest to him, therefore there is no problem, in principle, with using a distance function which is sometimes evaluated to $\infty$. Moreover, with both algorithms the number of clusters is determined automatically and does not need to be provided in advance (unlike in $k$-means).\\
 Algorithms based on local density include DBSCAN\cite{db} and Density Peak\cite{dp}.\\
 
 When $D$ is a set of vertices in a network and the definition of the similarity/dissimilarity measure involves the network structure (i.e. the set of edges and their weights) we talk about \textit{Community detection}. The general idea behind it is to form strongly linked subnetworks starting from the original network, and the weight of the edges between the different pairs of vertices defines a similarity measure.\\
-Community detection can also by achieved by numerous classes of algorithms\cite{commdet}, but few are efficient enough to be used on a very large network. Among these, we have \emph{Label propagation} methods, where the main idea is that objects in the same community share the same \textit{label}, after labels are propagated according to the network structure.
+Community detection can also by achieved by numerous classes of algorithms\cite{commdet}, but few are efficient enough to be used on a very large network. Among these, we have \emph{Label propagation} methods, where the main idea is that objects are intialized with some \emph{labels} and then, iteratively, labels are somehow propagated according to the network structure. At the end, two vertices end up in the same community if and only if they share the same label.
 \section{Cluster analysis on the given dataset}
 The dataset we are working with is composed by Genertel customers, and each of the customers is provided with an $n$-tuple of \textit{features}. Such features have different types, they can be represented by real numbers, integers, strings or lists. Therefore, we are not able to use a \textit{standard} distance such as an $L^p$ distance in $\mathbb{R}^n$.\\
 In the following, we will refer sometimes to customers as \textit{nodes} in the obtained network.\\
@@ -129,7 +129,7 @@ COSILT & 10 & 24 & E5-2697 v2 Intel processor & 64 GB \\
 \end{center}
 The table above summarizes the technical specification of the two infrastructures.
 \section{The data}
-The dataset we have been working with consists of the Genertel customers (car segment) spawning more than 20 years, for a total of 7.6M nodes. The database, originally stored in an Oracle DB, has been exported, anonymized and given to us in the form of 11 csv files.\\
+The dataset we have been working with consists of the Genertel customers (car segment) spawning more than 20 years, for a total of 7.6M customers, therefore 7.6M nodes in the network. The database, originally stored in an Oracle DB, has been exported, anonymized and given to us in the form of 11 csv files.\\
 
 The data contained in such files allow us to determine the features associated to each customer. Some features are associated to \textit{deterministic links}, i.e. similarity 0 or 1 between the pairs of customers. The features that are associated at first to a deterministic link are:
 \begin{itemize}
@@ -149,9 +149,9 @@ The features that are associated to a probabilistic link are:
 \item date of birth, also to be considered whenever the two individuals are physically close.
 \end{itemize}
 \subsection{Address anonymization}
-With regard to the addresses, the company proceeded with the anonymization using geocoding, i.e. given an address, they retrieved the correspondant latitude and longitude, ad then translated all the coordinates by the same vector. Such procedure is compatible with our analysis, since we only need the distance between the pairs of customers, in order to compute their similarity.\\
+With regard to the addresses, the company proceeded with the anonymization using geocoding, i.e. given an address, they retrieved the correspondent latitude and longitude, ad then translated all the coordinates by the same vector. Such procedure is compatible with our analysis, since we only need the distance between the pairs of customers, in order to compute their similarity.\\
 In the preliminary phase, we were also asked to check and verify the use of Google’s Geocoding API - a service which provides both geocoding and reverse geocoding - to anonymize the data. We therefore developed a Python script to fulfill such request.\\
-The API can be accessed through an HTTP interface. To this end, one must first activate the API in their Google API Console\cite{cons}, then obtain credentials. The only option for credential in the case of Standard (free) plan is a server API key\cite{key}, which is provided with 1000 free requests per day. Unless specified otherwise, the same key can be used from different machines.\\
+The API can be accessed through an HTTP interface. \footnote{To this end, one must first activate the API in their Google API Console\cite{cons}, then obtain credentials. The only option for credential in the case of Standard (free) plan is a server API key\cite{key}, which is provided with 1000 free requests per day. Unless specified otherwise, the same key can be used from different machines.}\\
 
 Since the API needed to process an input file with several millions of addresses, we checked whether the process could be parallelized, for example by splitting the file in advance and then starting a different independent process for each chunk of the file at the same time.\\
 The first attempts were made in a 4-core laptop, using an input file with 100 addresses, GNU parallel, and the following Python code:
@@ -191,13 +191,14 @@ The third part consists in creating two output files containing some information
 The first output file contains, for each object that ended up in a cluster (with more than one object), the following:
 \begin{itemize}
 \item cluster ID
-\item degree within cluster
-\item norm degree (degree within cluster/size of cluster)
+\item degree within cluster (number of neighbors in the same cluster)
+\item norm degree (degree within cluster/number of points in the cluster)
 \item closeness centrality within cluster
 \item betweenness centrality within cluster
 \item eigenvector centrality within cluster
 \item PageRank centrality within cluster
 \end{itemize}
+The closeness centrality is the the sum of the length of the shortest paths between the node and all other nodes in the cluster (viewed as a subnetwork). The betweenness centrality is the number of shortest paths from all vertices in the cluster to all others that pass through that node. The eigenvector centrality is another indicator of the influence of a node in the cluster, in particular it assigns \textit{scores} to the nodes with the assumption that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. Finally, the PageRank centrality is the result of one of the algorithm used by Google Search to rank websites in their search engine results.\\
 Due to the computation of the centralities, the creation of this file has also quadratic complexity.\\
 
 The second output file contains, for each cluster (with more than one object), the following:
@@ -208,12 +209,18 @@ The second output file contains, for each cluster (with more than one object), t
 \item maximum lenght of a shortest path between a pair of objects in the cluster
 \item degree centralization
 \end{itemize}
+The degree centralization is a measure of how central is the most central vertex (with respect to the degree centrality, i.e. the number of ties a node has) compared to the other vertices.\\
 Due to the last two pieces of information, the creation of this file has also quadratic complexity. That is why the creation of the two files runs in parallel, too.\\
-Given that most of the measures asked are strictly graph-related, we chose to use a library to manipulate our networks, igraph\cite{igr}. The documentation also provides a detailed decription of such measures.
-\subsection{Dealing with graphs}
-Not only provides igraph efficient data structures for representing graphs and related objects, but it also contains the implementation of many graph algorithms, including community detection algorithms such as Label propagation and optimized algorithms to compute several centrality measures.\\
-
-igraph is open source and distributed under the terms of the GNU GPL. It was originally written in C, but can be embedded into higher level languages. In fact, it has also been developed as a Python extension module, and this is the form in which we use it.\\
+Given that most of the measures asked are strictly graph-related, we chose to use a library to manipulate our graphss, igraph\cite{igr}. The documentation also provides a detailed decription of such measures.
+\subsection{Dealing with graphs} 
+  igraph is open source graph package, distributed under the terms of the GNU GPL.
+  It is a collection of network analysis tools, whose main goals are to provide easy implementation  of graph algorithms, and fast handling of large graphs (millions of vertices and edges).
+  Therefore, it not only provides efficient data structures for representing graphs
+  and related objects, but it also contains the implementation of many graph
+  algorithms, including community detection algorithms such as Label propagation and optimized algorithms to compute several centrality measures.\\
+  It was originally written in C, but can be embedded into higher level lan-
+  guages. In fact, it has also been developed as a Python extension module,
+  and this is the form in which we use it.\\
 Being part of the Python Package Index, it was installed through the \lstinline!pip! command.
 \section{The clustering algorithms}
 As we briefly anticipated previously, the goal is to compare a data clustering algorithm - therefore, not based on a network structure - and a community detection algorithm.
