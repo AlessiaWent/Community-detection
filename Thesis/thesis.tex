@@ -91,7 +91,7 @@ are closest to him, therefore there is no problem, in principle, with using a di
 Algorithms based on local density include DBSCAN\cite{db} and Density Peak\cite{dp}.\\
 
 When $D$ is a set of vertices in a network and the definition of the similarity/dissimilarity measure involves the network structure (i.e. the set of edges and their weights) we talk about \textit{Community detection}. The general idea behind it is to form strongly linked subnetworks starting from the original network, and the weight of the edges between the different pairs of vertices defines a similarity measure.\\
-Community detection can also by achieved by numerous classes of algorithms\cite{commdet}, but few are efficient enough to be used on a very large network. Among these, we have \emph{Label propagation} methods, where the main idea is that objects are intialized with some \emph{labels} and then, iteratively, labels are somehow propagated according to the network structure. At the end, two vertices end up in the same community if and only if they share the same label.
+Community detection can also be achieved by numerous classes of algorithms\cite{commdet}, but few are efficient enough to be used on a very large network. Among these, we have \emph{Label propagation} methods, where the main idea is that objects are intialized with some \emph{labels} and then, iteratively, labels are somehow propagated according to the network structure. At the end, two vertices end up in the same community if and only if they share the same label.
 \section{Cluster analysis on the given dataset}
 The dataset we are working with is composed by Genertel customers, and each of the customers is provided with an $n$-tuple of \textit{features}. Such features have different types, they can be represented by real numbers, integers, strings or lists. Therefore, we are not able to use a \textit{standard} distance such as an $L^p$ distance in $\mathbb{R}^n$.\\
 In the following, we will refer sometimes to customers as \textit{nodes} in the obtained network.\\
@@ -198,7 +198,7 @@ The first output file contains, for each object that ended up in a cluster (with
 \item eigenvector centrality within cluster
 \item PageRank centrality within cluster
 \end{itemize}
-The closeness centrality is the the sum of the length of the shortest paths between the node and all other nodes in the cluster (viewed as a subnetwork). The betweenness centrality is the number of shortest paths from all vertices in the cluster to all others that pass through that node. The eigenvector centrality is another indicator of the influence of a node in the cluster, in particular it assigns \textit{scores} to the nodes with the assumption that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. Finally, the PageRank centrality is the result of one of the algorithm used by Google Search to rank websites in their search engine results.\\
+The closeness centrality is the sum of the length of the shortest paths between the node and all other nodes in the cluster (viewed as a subnetwork). The betweenness centrality is the number of shortest paths from all vertices in the cluster to all others that pass through that node. The eigenvector centrality is another indicator of the influence of a node in the cluster, in particular it assigns \textit{scores} to the nodes with the assumption that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. Finally, the PageRank centrality is the result of one of the algorithm used by Google Search to rank websites in their search engine results.\\
 Due to the computation of the centralities, the creation of this file has also quadratic complexity.\\
 
 The second output file contains, for each cluster (with more than one object), the following:
@@ -211,7 +211,7 @@ The second output file contains, for each cluster (with more than one object), t
 \end{itemize}
 The degree centralization is a measure of how central is the most central vertex (with respect to the degree centrality, i.e. the number of ties a node has) compared to the other vertices.\\
 Due to the last two pieces of information, the creation of this file has also quadratic complexity. That is why the creation of the two files runs in parallel, too.\\
-Given that most of the measures asked are strictly graph-related, we chose to use a library to manipulate our graphss, igraph\cite{igr}. The documentation also provides a detailed decription of such measures.
+Given that most of the measures asked are strictly graph-related, we chose to use a library to manipulate our graphs, igraph\cite{igr}. The documentation also provides a detailed decription of such measures.
 \subsection{Dealing with graphs} 
   igraph is open source graph package, distributed under the terms of the GNU GPL.
   It is a collection of network analysis tools, whose main goals are to provide easy implementation  of graph algorithms, and fast handling of large graphs (millions of vertices and edges).
@@ -282,9 +282,9 @@ The performance of DBSCAN obviously depends on the quality of the distance funct
 \subsection{Community detection - Label propagation}
 Label propagation is a community detection algorithm that also works with networks where edges are weighted (unlike other such algorithms).\\
 
-The main idea is the following: suppose that each of the neighbors of some node carries a label denoting the community to which its belong to. Then the node determines its community based on the labels of its neighbors, in particular it joins the community to which the maximum number of its neighbors belong to, with ties broken uniformly randomly.\\
+The main idea is the following: suppose that each of the neighbors of some node carries a label denoting the community to which it belongs to. Then the node determines its community based on the labels of its neighbors, in particular it joins the community to which the maximum number of its neighbors belong to, with ties broken uniformly randomly.\\
 At first each node is initialized with a unique label, then labels propagate at each step, until each node's label is the one which appears most frequently among its neighbors (or one of them, in case of ties).\\
-Whenever the edges have weights, each neighbor counts as much as the weight of the edge connecting the it to the original node.\\
+Whenever the edges have weights, each neighbor counts as much as the weight of the edge connecting it to the original node.\\
 
 The update process is \textit{asynchronous}, meaning that if $C_x(t)$ represents the label given to node $x$ at step $t$, $x_0,\ldots,x_k$ are $x$'s neighbors and $x_0,\ldots,x_m$ (with $m\leq k$) are exactly the nodes that have already been visited at step $t$, then we have
 $$
@@ -326,7 +326,7 @@ As soon as we were able to access the dataset, we moved everything to the Lustre
 
 In the next section we will explain in a bit more detail the analysis we performed in order to better understand how to use the dataset.
 \section{Preliminary dataset analysis}
-After a brief discussion with Generali, we concluded that our first goal was to compute the so-called \textbf{Broker} links, perform a clustering algorithm on the obtained network, and profile the communities. The idea behind the Broker link is that two people are connected whenever they have, at some point, interacted with the same agent in order to get an quotation for some policy.\\
+After a brief discussion with Generali, we concluded that our first goal was to compute the so-called \textbf{Broker} links, perform a clustering algorithm on the obtained network, and profile the communities. The idea behind the Broker link is that two people are connected whenever they have, at some point, interacted with the same agent in order to get a quotation for some policy.\\
 The first thing we needed to understand was then how to determine when two quotations were given by the same agent, from the information contained in the dataset. In particular, one of the files defining the dataset gives information related to each quotation, including sometimes the agent code and/or the branch code.\\
 We discussed possible ways to determine the probability that two customers were linked whenever the agent code information was missing for all the estimates asked by one of (or both) the customers. To this end we ran a few Python scripts to compute, for istance:
 \begin{itemize}
