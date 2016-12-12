@@ -1,5 +1,5 @@
 #The program takes as input two cf-tables for two different subsets of the nodes (suggested size: 1M), computes the links between a node in the first subset and a node in the second subset, and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
-#Usage: ./edges_plates.py cftable1 nproc cftable2 output_file
+#Usage: ./edges_plates_split.py cftable1 nproc cftable2 output_file
 import codecs
 from igraph import *
 import time

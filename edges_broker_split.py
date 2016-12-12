@@ -1,9 +1,9 @@
 #The program takes as input two cf-tables for two different subsets of the nodes (suggested size: 1M), computes the links between a node in the first subset and a node in the second subset, and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
-#Usage: ./edges_ccred_split.py cftable1 nproc cftable2 output_file
+#Usage: ./edges_broker_split.py cftable1 nproc cftable2 output_file
 import codecs
 from igraph import *
 import time
-from point_ccred import Point, DBSCAN
+from point_broker import Point, DBSCAN
 import multiprocessing
 from multiprocessing import Process
 from Queue import Empty
@@ -54,19 +54,27 @@ for line in cf:
 cf.close()
 print "reading all needed data" 
 
-#reads the data which is necessary to compute the credit card liks
-soggcc = {}
+#reads the data which is necessary to compute the broker liks
+entci = {}
+f1 = open('preventivi_an.csv')
+for line in f1:
+    line = line.strip().split(',')
+    entci[line[0]] = line[7]
+f1.close()
+
+soggent = {}
 sogg = open('soggetti_an.csv', 'r')
 for line in sogg:
     line = line.strip().split(',')
-    soggcc[line[0]] = []
+    soggent[line[0]] = []
 sogg.close()
 
-f2 = open('ccred_an.csv', 'r')
+f2 = open('rolestable', 'r')
 next(f2)
 for line in f2:
-    line = line.strip().split(',')
-    soggcc[line[0]].append(line[7])
+    line = line.strip().split(' ')
+    for a in line[1:]:
+        soggent[a].append(line[0])
 f2.close()
 
 print " complete reading dataset"
@@ -75,9 +83,9 @@ print 'initialization time  (including reading data ) =', time.time() - t_zero
 print "start working in parallel"
 
 
-M = [Point(name, soggcc) for name in cfed.keys()]
+M = [Point(name, soggent, entci) for name in cfed.keys()]
 n = len(M)
-P = [Point(name, soggcc) for name in cfed2.keys()]
+P = [Point(name, soggent, entci) for name in cfed2.keys()]
 t = len(P)
 g = Graph()
 g.add_vertices([cfed[p.name] for p in M])

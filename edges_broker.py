@@ -35,7 +35,7 @@ def slice(i,j,a,que):
 	    c = di[q.name]
 	    if p.link(q) != None and c != b:
 		l = p.link(q)
-                result.append([b, c, l[0], l[1]])
+                result.append([b, c, l])
     que.put(result)
 
 
@@ -135,7 +135,7 @@ for r in all_results:
 tab = open(sys.argv[3], 'w')
 for r in all_results:
     for k in r:
-        tab.write(k[0]+'\t'+k[1]+'\t'+str(k[2])+'\t'+str(k[3])+'\n')
+        tab.write(k[0]+'\t'+k[1]+'\t'+str(k[2])+'\n')
 tab.close()
 
 print 'TT ='+str(time.time() - t_zero)

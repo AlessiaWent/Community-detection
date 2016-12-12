@@ -1,9 +1,9 @@
 #The program takes as input two cf-tables for two different subsets of the nodes (suggested size: 1M), computes the links between a node in the first subset and a node in the second subset, and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
-#Usage: ./edges_ccred_split.py cftable1 nproc cftable2 output_file
+#Usage: ./edges_email_split.py cftable1 nproc cftable2 output_file
 import codecs
 from igraph import *
 import time
-from point_ccred import Point, DBSCAN
+from point_email import Point, DBSCAN
 import multiprocessing
 from multiprocessing import Process
 from Queue import Empty
@@ -38,6 +38,7 @@ if len(sys.argv) <3:
 
 t_zero = time.time()
 
+
 #reads the tables containing ID_SOGGETTO and ID_CF for each node in the wanted subsets of the dataset
 cfed = {}
 cf = open(sys.argv[1], 'r')
@@ -54,19 +55,21 @@ for line in cf:
 cf.close()
 print "reading all needed data" 
 
-#reads the data which is necessary to compute the credit card liks
-soggcc = {}
+
+#reads the data which is necessary to compute the e-mail liks
+soggem = {}
 sogg = open('soggetti_an.csv', 'r')
 for line in sogg:
     line = line.strip().split(',')
-    soggcc[line[0]] = []
+    soggem[line[0]] = []
 sogg.close()
 
-f2 = open('ccred_an.csv', 'r')
+f2 = open('e_mail_id.csv', 'r')
 next(f2)
 for line in f2:
-    line = line.strip().split(',')
-    soggcc[line[0]].append(line[7])
+    line = line.strip().split(' ')
+    if len(line) > 1:
+        soggem[line[0]].append(line[1])
 f2.close()
 
 print " complete reading dataset"
@@ -75,9 +78,9 @@ print 'initialization time  (including reading data ) =', time.time() - t_zero
 print "start working in parallel"
 
 
-M = [Point(name, soggcc) for name in cfed.keys()]
+M = [Point(name, soggem) for name in cfed.keys()]
 n = len(M)
-P = [Point(name, soggcc) for name in cfed2.keys()]
+P = [Point(name, soggem) for name in cfed2.keys()]
 t = len(P)
 g = Graph()
 g.add_vertices([cfed[p.name] for p in M])
