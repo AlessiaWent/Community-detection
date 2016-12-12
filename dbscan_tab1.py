@@ -1,5 +1,5 @@
 #The program reads a file containing the edges and corresponding weights, performs DBSCAN and outputs Table 1
-#Usage: ./label_prop.py cftable nproc edges_file output_file
+#Usage: ./dbscan_tab1.py cftable nproc edges_file output_file
 import codecs
 from igraph import *
 import time
