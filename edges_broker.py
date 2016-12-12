@@ -1,3 +1,5 @@
+#The program computes the credit card links within a subset of the nodes (suggested size: 1M) and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
+#Usage: ./edges_broker.py cftable nproc output_file
 import codecs
 from igraph import *
 import time
@@ -10,13 +12,6 @@ from multiprocessing import Queue
 from multiprocessing.managers import SyncManager
 from functools import partial
 import sys
-import logging
-import itertools
-import numpy as np
-import h5py
-
-logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(message)s')
-logger = logging.getLogger()
 
 def indices(i,k):
     j = 0
@@ -52,9 +47,9 @@ if len(sys.argv) <3:
     print 'please provide me number of processors'
     sys.exit()
 
-
 t_zero = time.time()
 
+#reads the table containing ID_SOGGETTO and ID_CF for each node in the wanted subset of the dataset
 cfed = {}
 cfed_rev = {}
 cf = open(sys.argv[1], 'r')
@@ -64,10 +59,9 @@ for line in cf:
     cfed_rev[line[1]] = line[0]
 cf.close()
 
-print "reading all needed data" 
-
+#reads the data which is necessary to compute the broker liks
 entci = {}
-f1 = open('preventivi_filtered.csv')
+f1 = open('preventivi.csv')
 for line in f1:
     line = line.strip().split(',')
     entci[line[0]] = line[7]
@@ -80,7 +74,7 @@ for line in sogg:
     soggent[line[0]] = []
 sogg.close()
 
-f2 = open('rolestable_filtered', 'r')
+f2 = open('rolestable', 'r')
 next(f2)
 for line in f2:
     line = line.strip().split(' ')
@@ -132,27 +126,16 @@ while len(all_results)< tot_proc:
     print len(all_results), ' processes'
     all_results.append(q.get())
 
-'''
 for r in all_results:
     for k in r:
 	edges.append((k[0], k[1]))
         weights.append(k[2])
-'''
-'''
-tab = open('edges_file_broker2', 'w')
+
+#writes links in output file
+tab = open(sys.argv[3], 'w')
 for r in all_results:
     for k in r:
         tab.write(k[0]+'\t'+k[1]+'\t'+str(k[2])+'\t'+str(k[3])+'\n')
 tab.close()
-'''
-l = list(itertools.chain.from_iterable(all_results))
-g = [' '.join([str(j) for j in k]) for k in l]
-arr = np.array(g)
-
-with h5py.File('brokerlink.hdf5', 'w') as f:
-    special = h5py.special_dtype(vlen = np.dtype('str'))
-    dset = f.create_dataset('links', len(arr), dtype = special)
-    dset[...] = arr
-    f.flush()
 
 print 'TT ='+str(time.time() - t_zero)
