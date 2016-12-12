@@ -1,9 +1,9 @@
-#The program computes the broker links within a subset of the nodes (suggested size: 1M) and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
-#Usage: ./edges_broker.py cftable nproc output_file
+#The program computes the email links within a subset of the nodes (suggested size: 1M) and creates an output file containing lines of the form vertex1-vertex2-weight for each such link
+#Usage: ./edges_email.py cftable nproc output_file
 import codecs
 from igraph import *
 import time
-from point_broker import Point, DBSCAN
+from point_email import Point, DBSCAN
 import math
 import multiprocessing
 from multiprocessing import Process
@@ -38,7 +38,6 @@ def slice(i,j,a,que):
                 result.append([b, c, l])
     que.put(result)
 
-
 if len(sys.argv) <2:
     print 'please provide me input file' 
     sys.exit()
@@ -59,27 +58,22 @@ for line in cf:
     cfed_rev[line[1]] = line[0]
 cf.close()
 
-#reads the data which is necessary to compute the broker liks
-entci = {}
-f1 = open('preventivi.csv')
-for line in f1:
-    line = line.strip().split(',')
-    entci[line[0]] = line[7]
-f1.close()
+print "reading all needed data" 
 
-soggent = {}
+#reads the data which is necessary to compute the email liks
+soggem = {}
 sogg = open('soggetti_an.csv', 'r')
 for line in sogg:
     line = line.strip().split(',')
-    soggent[line[0]] = []
+    soggem[line[0]] = []
 sogg.close()
 
-f2 = open('rolestable', 'r')
+f2 = open('e_mail_id.csv', 'r')
 next(f2)
 for line in f2:
     line = line.strip().split(' ')
-    for a in line[1:]:
-        soggent[a].append(line[0])
+    if len(line) > 1:
+        soggem[line[0]].append(line[1])
 f2.close()
 
 print " complete reading dataset"
@@ -88,7 +82,7 @@ print 'initialization time  (including reading data ) =', time.time() - t_zero
 print "start working in parallel"
 
 
-M = [Point(name, soggent, entci) for name in cfed.keys()]
+M = [Point(name, soggem) for name in cfed.keys()]
 n = len(M)
 g = Graph()
 g.add_vertices([cfed[p.name] for p in M])
@@ -125,11 +119,6 @@ for proc_num in range(nsquares*(nsquares+1)/2):
 while len(all_results)< tot_proc:
     print len(all_results), ' processes'
     all_results.append(q.get())
-
-for r in all_results:
-    for k in r:
-	edges.append((k[0], k[1]))
-        weights.append(k[2])
 
 #writes links in output file
 tab = open(sys.argv[3], 'w')

@@ -1,18 +1,12 @@
-#File containing the definitions of the needed classes. The Point class is defined in order to deal with the broker links
+#File containing the definitions of the needed classes. The Point class is defined in order to deal with the email links
 
 class Point(object):
-    def __init__(self, name, rolesdict, entdict):
+    def __init__(self, name, emdict):
         self.name = name
-        self.ent = rolesdict[self.name]
-        self.ci = []
-        for e in self.ent:
-            try:
-                if entdict[e] != '':
-                    self.ci.append(entdict[e])
-            except KeyError:
-                pass
+        self.em = emdict[self.name]
     def link(self, other):
-        if len([a for a in self.ci if a in other.ci]) or len([a for a in self.ent if a in other.ent]):
+        listem = [a for a in self.em if a in other.em]
+        if len(listem):
             return 1
     def __str__(self):
         return str(self.name)
