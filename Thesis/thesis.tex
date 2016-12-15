@@ -65,7 +65,7 @@
 \thispagestyle{empty}
 \clearpage{\pagestyle{empty}\cleardoublepage}\thispagestyle{empty}
 \chapter{Introduction}
-The work presented in this thesis  has been performed within the collaboration among MHPC and the Analytic Solution Center (ASC), an office which is part of Assicurazioni Generali Head Office and is responsible of advanced analytic and big data projects. Generali proposed the overall topic: modelling of the customer database as a social network and community identification.  The Analytic Solution Center took also care to identify  such a large dataset within the company and its subsidaries. They finally identify the  Genertel (a subsidiary company of Generali) customer-base archive as the dataset to work on. The data have been first anonymized by Genertel and then the anonymized dataset has been delivered for the analysis.\\
+The work presented in this thesis  has been performed within the collaboration among MHPC and the Analytic Solution Center (ASC), an office which is part of Assicurazioni Generali Head Office and is responsible of advanced analytic and big data projects. Generali proposed the overall topic: modelling of the customer database as a social network and community identification.  The Analytic Solution Center took also care to identify  such a large dataset within the company and its subsidiaries. They finally identify the  Genertel (a subsidiary company of Generali) customer-base archive as the dataset to work on. The data have been first anonymized by Genertel and then the anonymized dataset has been delivered for the analysis.\\
 The goal of the project is to implement on HPC resources a software able to detect the communities from the dataset identified.\\
 
 The work performed will be presented in this document as follows.\\
@@ -74,7 +74,7 @@ In chapter 2 we will describe the hardware and software architecture we implemen
 In chapter 3 we will describe the implementation on HPC platforms of our software architecture, and the whole ``optimization journey'' we performed.\\
 Finally, in chapter 4 we will analyse the performance of our implementations, and the results obtained in terms of network communities identified.\\
 
-The whole activity was co-supervised by Generali Big data group (dr. Valerio Consorti), which suggested for the greatest part the way to proceed. We remark that some deliverables has been submitted to Genertel and intermediate results were periodically discussed during several meetings.
+The whole activity was co-supervised by Generali Big data group (dr. Valerio Consorti), which suggested for the greatest part the way to proceed. We remark that some deliverables have been submitted to Genertel and intermediate results were periodically discussed during several meetings.
 \section{Introduction to Clustering}
 \textit{Clustering}, or \textit{Cluster Analysis} is a collection of methods aimed at partitioning a set of \textit{objects} so that objects in the same subset are ``more similar'' to each other than to those in other subsets, according to some \textit{similarity} or \textit{dissimilarity} measure.\\
 Throughout the document, given a set $D$ of objects, a similarity will be a symmetric function from $D\times D$ to $[0,1]$, while a dissimilarity or \textit{distance} will be a symmetric function $d$ from $D\times D$ to $[0,+\infty)$ such that
@@ -198,7 +198,7 @@ The first output file contains, for each object that ended up in a cluster (with
 \item eigenvector centrality within cluster
 \item PageRank centrality within cluster
 \end{itemize}
-The closeness centrality is the sum of the length of the shortest paths between the node and all other nodes in the cluster (viewed as a subnetwork). The betweenness centrality is the number of shortest paths from all vertices in the cluster to all others that pass through that node. The eigenvector centrality is another indicator of the influence of a node in the cluster, in particular it assigns \textit{scores} to the nodes with the assumption that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. Finally, the PageRank centrality is the result of one of the algorithm used by Google Search to rank websites in their search engine results.\\
+The closeness centrality is the sum of the lengths of the shortest paths between the node and all other nodes in the cluster (viewed as a subnetwork). The betweenness centrality is the number of shortest paths from all vertices in the cluster to all others that pass through that node. The eigenvector centrality is another indicator of the influence of a node in the cluster, in particular it assigns \textit{scores} to the nodes with the assumption that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. Finally, the PageRank centrality is the result of one of the algorithm used by Google Search to rank websites in their search engine results.\\
 Due to the computation of the centralities, the creation of this file has also quadratic complexity.\\
 
 The second output file contains, for each cluster (with more than one object), the following:
@@ -206,14 +206,14 @@ The second output file contains, for each cluster (with more than one object), t
 \item size
 \item number of edges
 \item average degree
-\item maximum lenght of a shortest path between a pair of objects in the cluster
+\item maximum length of a shortest path between a pair of objects in the cluster
 \item degree centralization
 \end{itemize}
 The degree centralization is a measure of how central is the most central vertex (with respect to the degree centrality, i.e. the number of ties a node has) compared to the other vertices.\\
 Due to the last two pieces of information, the creation of this file has also quadratic complexity. That is why the creation of the two files runs in parallel, too.\\
 Given that most of the measures asked are strictly graph-related, we chose to use a library to manipulate our graphs, igraph\cite{igr}. The documentation also provides a detailed decription of such measures.
 \subsection{Dealing with graphs} 
-  igraph is open source graph package, distributed under the terms of the GNU GPL.
+  igraph is an open source graph package, distributed under the terms of the GNU GPL.
   It is a collection of network analysis tools, whose main goals are to provide easy implementation  of graph algorithms, and fast handling of large graphs (millions of vertices and edges).
   Therefore, it not only provides efficient data structures for representing graphs
   and related objects, but it also contains the implementation of many graph
